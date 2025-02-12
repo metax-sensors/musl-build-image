@@ -140,9 +140,9 @@ RUN wget https://github.com/openssl/openssl/archive/refs/tags/openssl-${OPENSSL_
 	make -j 6 && \
 	make install
 
-RUN wget https://boostorg.jfrog.io/artifactory/main/release/1.86.0/source/boost_1_86_0.tar.gz -P /root/Temp && \
-	tar -xzf /root/Temp/boost_1_86_0.tar.gz -C /root/Temp && \
-	cd /root/Temp/boost_1_86_0 && \
+RUN wget https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.gz -P /root/Temp && \
+	tar -xzf /root/Temp/boost_1_87_0.tar.gz -C /root/Temp && \
+	cd /root/Temp/boost_1_87_0 && \
 	./bootstrap.sh && \
 	sed -i 's/using gcc/using gcc : arm : arm-bemos-linux-musleabihf-g++/g' project-config.jam && \
 	./b2 install toolset=gcc-arm --without-python \
