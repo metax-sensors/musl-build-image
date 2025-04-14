@@ -86,7 +86,7 @@ RUN wget https://github.com/stevegrubb/libcap-ng/archive/refs/tags/v${LIBCAP_NG_
 		--host=arm-bemos-linux-musleabihf && \
 	make && make install
 
-ARG UTIL_LINUX_VERSION=2.40.2
+ARG UTIL_LINUX_VERSION=2.41
 RUN wget https://github.com/util-linux/util-linux/archive/refs/tags/v${UTIL_LINUX_VERSION}.tar.gz -P /root/Temp && \
 	tar xf /root/Temp/v${UTIL_LINUX_VERSION}.tar.gz -C /root/Temp && \
 	cd /root/Temp/util-linux-${UTIL_LINUX_VERSION} && \
@@ -128,7 +128,7 @@ RUN cd /root/Temp/systemd-${SYSTEMD_VERSION} && mkdir build && \
 	mkdir ${TOOLCHAIN_PREFIX}/include/systemd && \
 	cp src/systemd/*.h ${TOOLCHAIN_PREFIX}/include/systemd
 
-ARG OPENSSL_VERSION=3.4.1
+ARG OPENSSL_VERSION=3.5.0
 SHELL ["/bin/bash", "-c"]
 RUN wget https://github.com/openssl/openssl/archive/refs/tags/openssl-${OPENSSL_VERSION}.tar.gz -P /root/Temp && \
 	tar -xzf /root/Temp/openssl-${OPENSSL_VERSION}.tar.gz -C /root/Temp && \
@@ -140,9 +140,9 @@ RUN wget https://github.com/openssl/openssl/archive/refs/tags/openssl-${OPENSSL_
 	make -j 6 && \
 	make install
 
-RUN wget https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.gz -P /root/Temp && \
-	tar -xzf /root/Temp/boost_1_87_0.tar.gz -C /root/Temp && \
-	cd /root/Temp/boost_1_87_0 && \
+RUN wget https://archives.boost.io/release/1.88.0/source/boost_1_88_0.tar.gz -P /root/Temp && \
+	tar -xzf /root/Temp/boost_1_88_0.tar.gz -C /root/Temp && \
+	cd /root/Temp/boost_1_88_0 && \
 	./bootstrap.sh && \
 	sed -i 's/using gcc/using gcc : arm : arm-bemos-linux-musleabihf-g++/g' project-config.jam && \
 	./b2 install toolset=gcc-arm --without-python \
