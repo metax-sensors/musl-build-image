@@ -57,7 +57,7 @@ ARG TOOLCHAIN_PREFIX=/opt/x-tools/arm-bemos-linux-musleabihf/arm-bemos-linux-mus
 
 ENV PKG_CONFIG_LIBDIR=${TOOLCHAIN_PREFIX}/lib
 
-ARG LIBCAP_VERSION=2.70
+ARG LIBCAP_VERSION=2.76
 RUN wget https://mirrors.edge.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-${LIBCAP_VERSION}.tar.xz -P /root/Temp && \
 	tar xf /root/Temp/libcap-${LIBCAP_VERSION}.tar.xz -C /root/Temp && \
 	cd /root/Temp/libcap-${LIBCAP_VERSION} && \
@@ -86,7 +86,7 @@ RUN wget https://github.com/stevegrubb/libcap-ng/archive/refs/tags/v${LIBCAP_NG_
 		--host=arm-bemos-linux-musleabihf && \
 	make && make install
 
-ARG UTIL_LINUX_VERSION=2.41
+ARG UTIL_LINUX_VERSION=2.41.1
 RUN wget https://github.com/util-linux/util-linux/archive/refs/tags/v${UTIL_LINUX_VERSION}.tar.gz -P /root/Temp && \
 	tar xf /root/Temp/v${UTIL_LINUX_VERSION}.tar.gz -C /root/Temp && \
 	cd /root/Temp/util-linux-${UTIL_LINUX_VERSION} && \
@@ -128,7 +128,7 @@ RUN cd /root/Temp/systemd-${SYSTEMD_VERSION} && mkdir build && \
 	mkdir ${TOOLCHAIN_PREFIX}/include/systemd && \
 	cp src/systemd/*.h ${TOOLCHAIN_PREFIX}/include/systemd
 
-ARG OPENSSL_VERSION=3.5.0
+ARG OPENSSL_VERSION=3.5.2
 SHELL ["/bin/bash", "-c"]
 RUN wget https://github.com/openssl/openssl/archive/refs/tags/openssl-${OPENSSL_VERSION}.tar.gz -P /root/Temp && \
 	tar -xzf /root/Temp/openssl-${OPENSSL_VERSION}.tar.gz -C /root/Temp && \
@@ -140,9 +140,9 @@ RUN wget https://github.com/openssl/openssl/archive/refs/tags/openssl-${OPENSSL_
 	make -j 6 && \
 	make install
 
-RUN wget https://archives.boost.io/release/1.88.0/source/boost_1_88_0.tar.gz -P /root/Temp && \
-	tar -xzf /root/Temp/boost_1_88_0.tar.gz -C /root/Temp && \
-	cd /root/Temp/boost_1_88_0 && \
+RUN wget https://archives.boost.io/release/1.89.0/source/boost_1_89_0.tar.gz -P /root/Temp && \
+	tar -xzf /root/Temp/boost_1_89_0.tar.gz -C /root/Temp && \
+	cd /root/Temp/boost_1_89_0 && \
 	./bootstrap.sh && \
 	sed -i 's/using gcc/using gcc : arm : arm-bemos-linux-musleabihf-g++/g' project-config.jam && \
 	./b2 install toolset=gcc-arm --without-python \
@@ -157,7 +157,7 @@ RUN wget https://github.com/stephane/libmodbus/releases/download/v${MODBUS_VERSI
 		--with-pic --enable-static --enable-shared=no && \
 	make && make install
 
-ARG LUA_VERSION=5.4.7
+ARG LUA_VERSION=5.4.8
 RUN wget https://github.com/lua/lua/archive/refs/tags/v${LUA_VERSION}.tar.gz -P /root/Temp && \
 	tar -xzf /root/Temp/v${LUA_VERSION}.tar.gz -C /root/Temp && \
 	cd /root/Temp/lua-${LUA_VERSION} && \
