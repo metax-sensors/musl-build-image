@@ -1,4 +1,4 @@
-FROM debian:13 AS builder 
+FROM debian:11 AS builder 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --no-install-suggests \
 	wget \
 	build-essential \
@@ -31,6 +31,14 @@ RUN rm -Rf /var/lib/apt/lists/*
 
 RUN mkdir -p /root/Temp
 
+ARG AUTOCONF_VERSION=2.72
+RUN wget https://ftp.gnu.org/gnu/autoconf/autoconf-${AUTOCONF_VERSION}.tar.gz -P /root/Temp && \
+	tar xzf /root/Temp/autoconf-${AUTOCONF_VERSION}.tar.gz -C /root/Temp && \
+	cd /root/Temp/autoconf-${AUTOCONF_VERSION} && \
+	./configure && \
+	make && \
+	make install
+
 ARG CTNG_VERSION=1.28.0
 RUN cd /root/Temp && git clone -n https://github.com/crosstool-ng/crosstool-ng.git && \
 	cd crosstool-ng && git checkout tags/crosstool-ng-${CTNG_VERSION} && \
@@ -41,7 +49,7 @@ RUN cd /root/Temp && git clone -n https://github.com/crosstool-ng/crosstool-ng.g
 
 RUN mkdir -p /root/Temp/ct-ng
 COPY ct-ng.config /root/Temp/ct-ng/.config
-RUN cd /root/Temp/ct-ng && ct-ng upgradeconfig 
+RUN cd /root/Temp/ct-ng && ct-ng upgradeconfig
 RUN cd /root/Temp/ct-ng && ct-ng build
 
 ENV PATH=${PATH}:/opt/x-tools/arm-bemos-linux-musleabihf/bin
