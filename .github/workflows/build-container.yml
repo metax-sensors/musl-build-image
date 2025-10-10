@@ -4,6 +4,9 @@ on:
     branches: ['*']
     tags: ['*']
 
+permissions:
+  contents: write   # needed to create GitHub Releases
+
 jobs:
   publish:
     if: github.ref_type == 'branch'
