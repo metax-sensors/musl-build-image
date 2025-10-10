@@ -1,4 +1,4 @@
-FROM debian:11 AS builder 
+FROM debian:13 AS builder 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --no-install-suggests \
 	wget \
 	build-essential \
@@ -31,16 +31,9 @@ RUN rm -Rf /var/lib/apt/lists/*
 
 RUN mkdir -p /root/Temp
 
-ARG AUTOCONF_VERSION=2.72
-RUN wget https://ftp.gnu.org/gnu/autoconf/autoconf-${AUTOCONF_VERSION}.tar.gz -P /root/Temp && \
-	tar xzf /root/Temp/autoconf-${AUTOCONF_VERSION}.tar.gz -C /root/Temp && \
-	cd /root/Temp/autoconf-${AUTOCONF_VERSION} && \
-	./configure && \
-	make && \
-	make install
-
+ARG CTNG_VERSION=1.28.0
 RUN cd /root/Temp && git clone -n https://github.com/crosstool-ng/crosstool-ng.git && \
-	cd crosstool-ng && git checkout tags/crosstool-ng-1.27.0 && \
+	cd crosstool-ng && git checkout tags/crosstool-ng-${CTNG_VERSION} && \
 	./bootstrap && \
 	./configure && \
 	make && \
@@ -128,7 +121,7 @@ RUN cd /root/Temp/systemd-${SYSTEMD_VERSION} && mkdir build && \
 	mkdir ${TOOLCHAIN_PREFIX}/include/systemd && \
 	cp src/systemd/*.h ${TOOLCHAIN_PREFIX}/include/systemd
 
-ARG OPENSSL_VERSION=3.5.2
+ARG OPENSSL_VERSION=3.6.0
 SHELL ["/bin/bash", "-c"]
 RUN wget https://github.com/openssl/openssl/archive/refs/tags/openssl-${OPENSSL_VERSION}.tar.gz -P /root/Temp && \
 	tar -xzf /root/Temp/openssl-${OPENSSL_VERSION}.tar.gz -C /root/Temp && \
