@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Build and publish a Docker image for ${{ github.repository }}
         uses: macbre/push-to-ghcr@master
         with:
@@ -26,14 +26,14 @@ jobs:
     needs: publish
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Extract toolchain
         run: |
           docker pull ghcr.io/metax-sensors/musl-build-image:latest
           docker run --rm -v $(pwd):/data ghcr.io/metax-sensors/musl-build-image:latest \
             /bin/tar -czvf /data/arm-bemos-linux-musleabihf.tar.gz /opt/x-tools/arm-bemos-linux-musleabihf/
       - name: Archive toolchain
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: toolchain archive
           path: arm-bemos-linux-musleabihf.tar.gz
@@ -44,7 +44,7 @@ jobs:
     needs: extract-toolchain
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: toolchain archive
       - name: Get version from tag
