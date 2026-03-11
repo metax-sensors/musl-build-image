@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write   # needed to create GitHub Releases
+  packages: write   # needed to push images to GHCR
 
 jobs:
   publish:
@@ -52,6 +53,14 @@ jobs:
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
       - name: Rename artifact
         run: mv arm-bemos-linux-musleabihf.tar.gz arm-bemos-linux-musleabihf_${{ github.ref_name }}.tar.gz
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Create matching container tag
+        run: |
+          IMAGE=ghcr.io/metax-sensors/musl-build-image
+          docker pull ${IMAGE}:latest
+          docker tag ${IMAGE}:latest ${IMAGE}:${{ github.ref_name }}
+          docker push ${IMAGE}:${{ github.ref_name }}
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
