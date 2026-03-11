@@ -174,7 +174,7 @@ RUN wget https://github.com/openssl/openssl/archive/refs/tags/openssl-${OPENSSL_
 	make install
 
 ARG BOOST_VERSION_MAJOR=1
-ARG BOOST_VERSION_MINOR=90
+ARG BOOST_VERSION_MINOR=86
 ARG BOOST_VERSION_PATCH=0
 RUN wget https://archives.boost.io/release/${BOOST_VERSION_MAJOR}.${BOOST_VERSION_MINOR}.${BOOST_VERSION_PATCH}/source/boost_${BOOST_VERSION_MAJOR}_${BOOST_VERSION_MINOR}_${BOOST_VERSION_PATCH}.tar.gz -P /root/Temp && \
 	tar -xzf /root/Temp/boost_${BOOST_VERSION_MAJOR}_${BOOST_VERSION_MINOR}_${BOOST_VERSION_PATCH}.tar.gz -C /root/Temp && \
