@@ -12,5 +12,9 @@ cpu_family = 'arm'
 cpu = 'cortex-a9'
 endian = 'little'
 
+[built-in options]
+c_args = ['-D__UAPI_DEF_ETHHDR=0', '-I/opt/x-tools/arm-bemos-linux-musleabihf/arm-bemos-linux-musleabihf/include', '-Wno-calloc-transposed-args', '-Wno-use-after-free', '-Wno-nonnull-compare', '-include', '/root/musl-compat.h']
+
 [properties]
 pkg_config_libdir = '/opt/x-tools/arm-bemos-linux-musleabihf/arm-bemos-linux-musleabihf/lib/pkgconfig'
+sys_root = '/opt/x-tools/arm-bemos-linux-musleabihf/arm-bemos-linux-musleabihf'

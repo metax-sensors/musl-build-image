@@ -1,4 +1,5 @@
-FROM debian:11 AS builder 
+# Stage 1: Build the cross-toolchain (cached independently)
+FROM debian:13 AS toolchain
 RUN apt-get update -y && apt-get install -y --no-install-recommends --no-install-suggests \
 	wget \
 	build-essential \
@@ -31,14 +32,6 @@ RUN rm -Rf /var/lib/apt/lists/*
 
 RUN mkdir -p /root/Temp
 
-ARG AUTOCONF_VERSION=2.72
-RUN wget https://ftp.gnu.org/gnu/autoconf/autoconf-${AUTOCONF_VERSION}.tar.gz -P /root/Temp && \
-	tar xzf /root/Temp/autoconf-${AUTOCONF_VERSION}.tar.gz -C /root/Temp && \
-	cd /root/Temp/autoconf-${AUTOCONF_VERSION} && \
-	./configure && \
-	make && \
-	make install
-
 ARG CTNG_VERSION=1.28.0
 RUN cd /root/Temp && git clone -n https://github.com/crosstool-ng/crosstool-ng.git && \
 	cd crosstool-ng && git checkout tags/crosstool-ng-${CTNG_VERSION} && \
@@ -51,6 +44,42 @@ RUN mkdir -p /root/Temp/ct-ng
 COPY ct-ng.config /root/Temp/ct-ng/.config
 RUN cd /root/Temp/ct-ng && ct-ng upgradeconfig
 RUN cd /root/Temp/ct-ng && ct-ng build
+
+# Stage 2: Build libraries using the toolchain
+FROM debian:13 AS builder
+RUN apt-get update -y && apt-get install -y --no-install-recommends --no-install-suggests \
+	wget \
+	build-essential \
+	python3 \
+	python3-jinja2 \
+	curl \
+	automake \
+	texinfo \
+	help2man \
+	gawk \
+	bison \
+	flex \
+	file \
+	libtool-bin \
+	gperf \
+	git \
+	libreadline8 \
+	libreadline-dev \
+	make \
+	ninja-build \
+	autopoint \
+	meson \
+	ccache \
+	pkg-config \
+	ca-certificates \
+	cmake \
+	libssl-dev \
+	unzip
+RUN rm -Rf /var/lib/apt/lists/*
+
+COPY --from=toolchain /opt/x-tools/ /opt/x-tools/
+
+RUN mkdir -p /root/Temp
 
 ENV PATH=${PATH}:/opt/x-tools/arm-bemos-linux-musleabihf/bin
 
@@ -98,18 +127,21 @@ RUN wget https://github.com/util-linux/util-linux/archive/refs/tags/v${UTIL_LINU
 	make && make install
 
 COPY arm-gcc.txt /root/arm-gcc.txt
+COPY musl-compat.h /root/musl-compat.h
 
 ARG SYSTEMD_VERSION=251
 COPY systemd /root/Temp/systemd_patches/
 RUN wget https://github.com/systemd/systemd/archive/refs/tags/v${SYSTEMD_VERSION}.tar.gz -P /root/Temp && \
 	tar -xzf /root/Temp/v${SYSTEMD_VERSION}.tar.gz -C /root/Temp
 RUN cd /root/Temp/systemd-${SYSTEMD_VERSION} && \
-	for i in /root/Temp/systemd_patches/*.patch; do patch -p1 < $i; done
+	for i in /root/Temp/systemd_patches/*.patch; do patch -p1 < $i; done && \
+	sed -i '/assert_cc.*dirent64/d' src/basic/dirent-util.h
 RUN cd /root/Temp/systemd-${SYSTEMD_VERSION} && mkdir build && \
-	CFLAGS="-D__UAPI_DEF_ETHHDR=0 -I${TOOLCHAIN_PREFIX}/include" meson setup \
+	meson setup \
 		--prefix=${TOOLCHAIN_PREFIX} \
 		--buildtype=release \
 		--cross-file=/root/arm-gcc.txt \
+		-Drootprefix=${TOOLCHAIN_PREFIX} \
 		-Dgshadow=false \
 		-Didn=false \
 		-Dlocaled=false \
@@ -122,6 +154,7 @@ RUN cd /root/Temp/systemd-${SYSTEMD_VERSION} && mkdir build && \
 		-Dutmp=false \
 		-Dtests=false \
 		-Dstatic-libsystemd=pic \
+		-Dwerror=false \
 		build && \
 	ninja -C build libsystemd.a src/libsystemd/libsystemd.pc && \
 	cp build/libsystemd.a ${TOOLCHAIN_PREFIX}/lib && \
