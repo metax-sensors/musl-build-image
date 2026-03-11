@@ -17,7 +17,7 @@ jobs:
       - name: Build and publish a Docker image for ${{ github.repository }}
         uses: macbre/push-to-ghcr@master
         with:
-          image_name: bestsens/musl-build-image  # it will be lowercased internally
+          image_name: metax-sensors/musl-build-image  # it will be lowercased internally
           github_token: ${{ secrets.GITHUB_TOKEN }}
   
   extract-toolchain:
@@ -29,8 +29,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Extract toolchain
         run: |
-          docker pull ghcr.io/bestsens/musl-build-image:latest
-          docker run --rm -v $(pwd):/data ghcr.io/bestsens/musl-build-image:latest \
+          docker pull ghcr.io/metax-sensors/musl-build-image:latest
+          docker run --rm -v $(pwd):/data ghcr.io/metax-sensors/musl-build-image:latest \
             /bin/tar -czvf /data/arm-bemos-linux-musleabihf.tar.gz /opt/x-tools/arm-bemos-linux-musleabihf/
       - name: Archive toolchain
         uses: actions/upload-artifact@v4
